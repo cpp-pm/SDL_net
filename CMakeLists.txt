@@ -2,17 +2,27 @@ cmake_minimum_required(VERSION 3.2)
 
 include(cmake/HunterGate.cmake)
 HunterGate(
-    URL "https://github.com/cpp-pm/hunter/archive/v0.23.309.tar.gz"
-    SHA1 "15e84e1f23eb079360db727d373dab82890420b7"
+    URL "https://github.com/cpp-pm/hunter/archive/v0.24.6.tar.gz"
+    SHA1 "afc05d8ebd959df65f8c0b1b2e5dcd14c59e9813"
 )
 
-project(SDL_net VERSION 2.0.1)
+project(SDL_net VERSION 2.2.0)
 
 add_library(${PROJECT_NAME})
 
 hunter_add_package(SDL2)
 find_package(SDL2 CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL2::SDL2)
+if(WIN32)
+    if (MSVC)
+        target_compile_options(${PROJECT_NAME} PRIVATE /W3 /wd4244)
+    endif()
+    target_compile_definitions(${PROJECT_NAME} PRIVATE _WINSOCK_DEPRECATED_NO_WARNINGS)
+    target_link_libraries(${PROJECT_NAME} PRIVATE ws2_32 iphlpapi)
+    if(BUILD_SHARED_LIBS)
+        target_sources(${PROJECT_NAME} PRIVATE version.rc)
+    endif()
+endif()
 
 set(SRC_FILES
     SDLnet.c
